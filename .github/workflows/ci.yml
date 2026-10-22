@@ -1,34 +1,43 @@
-name: Continuous Integration
+name: Zero-Prerequisite Diagnostic
 
-# Defines the events that trigger the execution of this workflow
+# Triggers the workflow manually or whenever code is pushed to any branch
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch: # Allows manual triggering from the GitHub Actions UI
+    branches: [ "**" ]
+  workflow_dispatch:
 
 jobs:
-  build-and-test:
-    # Specifies the type of runner (virtual machine) the job runs on
+  system-diagnostic:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Clone the repository onto the runner
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      # Step 1: Print basic greeting and trigger information
+      - name: Welcome and Metadata Check
+        run: |
+          echo "Workflow triggered successfully!"
+          echo "Triggered by event: ${{ github.event_name }}"
+          echo "Triggered by user: ${{ github.actor }}"
+          echo "Current branch: ${{ github.ref_name }}"
 
-      # Step 2: Set up a specific version of Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm' # Automatically caches node_modules for faster subsequent runs
+      # Step 2: Check environmental variables and default tooling
+      - name: System Environment Info
+        run: |
+          echo "Host Operating System Info:"
+          uname -a
+          
+          echo "Pre-installed Tool Versions:"
+          echo "Python version: $(python3 --version)"
+          echo "Git version: $(git --version)"
+          echo "Docker version: $(docker --version)"
+          echo "Curl version: $(curl --version)"
 
-      # Step 3: Install all project dependencies safely
-      - name: Install Dependencies
-        run: npm ci
-
-      # Step 4: Run your automated application tests
-      - name: Run Test Suite
-        run: npm test
+      # Step 3: Demonstrate dynamic calculations inside the runner
+      - name: Simple Computational Task
+        run: |
+          echo "Generating data on the fly..."
+          UPTIME_DATA=$(uptime)
+          echo "Current runner uptime: $UPTIME_DATA"
+          
+          # Math calculation using expr
+          RESULT=$(expr 543 + 457)
+          echo "Math test verification (543 + 457): $RESULT"
