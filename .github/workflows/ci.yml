@@ -1,36 +1,34 @@
-# This is a basic workflow to help you get started with Actions
+name: Continuous Integration
 
-name: CI
-
-# Controls when the workflow will run
+# Defines the events that trigger the execution of this workflow
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
+  workflow_dispatch: # Allows manual triggering from the GitHub Actions UI
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  build-and-test:
+    # Specifies the type of runner (virtual machine) the job runs on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      # Step 1: Clone the repository onto the runner
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      # Step 2: Set up a specific version of Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm' # Automatically caches node_modules for faster subsequent runs
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      # Step 3: Install all project dependencies safely
+      - name: Install Dependencies
+        run: npm ci
+
+      # Step 4: Run your automated application tests
+      - name: Run Test Suite
+        run: npm test
